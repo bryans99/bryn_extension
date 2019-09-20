@@ -7,7 +7,7 @@ project_name: "bryn_extension"
 #   project: "name_of_other_project"
 # }
 
-application: foo {
-  label: "hellojs"
+application: prototype {
+  label: "Prototype"
   file: "hello.js"
 }
