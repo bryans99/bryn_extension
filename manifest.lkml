@@ -9,5 +9,9 @@ project_name: "bryn_extension"
 
 application: prototype {
   label: "Prototype"
+  file: "prototype.js"
+}
+
+application: hello {
   file: "hello.js"
 }
