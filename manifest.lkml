@@ -12,6 +12,8 @@ application: prototype {
   file: "prototype.js"
 }
 
+# if label ommitted does not appear in drop down menu
+# bit of a hack at the moment
 application: hello {
   file: "hello.js"
 }
