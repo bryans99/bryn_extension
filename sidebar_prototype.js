@@ -1,4 +1,74 @@
 
+const counterApp = () => {
+	let count = 0
+
+	const listener = (event) => {
+		if (!event) {
+			return
+		}
+		const { data, origin } = event
+		if (origin !== window.parent.location.origin || !data) {
+			return
+		}
+		const { source, payload } = data
+		if (source !== 'extension_framework_client' || !payload) {
+			return
+		}
+		if (payload.event === 'increment_click') {
+			count += 1
+		} else if (payload.event === 'decrement_click') {
+			count -= 1
+		}
+		window.parent.postMessage({
+			payload: {
+				event: 'update_model',
+				modelName: 'counter',
+				path: 'count',
+				value: count
+			},
+			source: 'extension_framework_client'
+		})
+	}
+
+	window.addEventListener('message', listener)
+	window.addEventListener('unload', () => {
+		window.removeEventListener('message', listener)
+	})
+}
+
+const propagateApp = () => {
+
+	const listener = (event) => {
+		if (!event) {
+			return
+		}
+		const { data, origin } = event
+		if (origin !== window.parent.location.origin || !data) {
+			return
+		}
+		const { source, payload } = data
+		if (source !== 'extension_framework_client' || !payload) {
+			return
+		}
+		if (payload.event === 'update_field_text' && payload.modelName === 'propagate') {
+			window.parent.postMessage({
+				payload: {
+					event: 'update_model',
+					modelName: 'propagate',
+					path: payload.path === 'fieldA' ? 'fieldB' : 'fieldA',
+					value: payload.value
+				},
+				source: 'extension_framework_client'
+			})
+		}
+	}
+
+	window.addEventListener('message', listener)
+	window.addEventListener('unload', () => {
+		window.removeEventListener('message', listener)
+	})
+}
+
 (function () {
 
 	// The configuration object needs to be created using an API.
@@ -57,6 +127,15 @@
 									cardId: 'counter',
 								},
 							},
+							{
+								label: "Propogate",
+								icon: 'ApplicationSelect',
+								payload: {
+									targetId: 'main_view',
+									event: 'show_card',
+									cardId: 'propagate',
+								},
+							},
 						]
 					},
 					{
@@ -101,6 +180,25 @@
 										label: 'Counter',
 										modelName: 'counter',
 										path: 'count',
+										readOnly: true,
+									},
+								],
+							},
+							{
+								id: 'propagate',
+								type: 'column_layout',
+								children: [
+									{
+										type: 'field_text',
+										label: 'Field A',
+										modelName: 'propagate',
+										path: 'fieldA',
+									},
+									{
+										type: 'field_text',
+										label: 'Field B',
+										modelName: 'propagate',
+										path: 'fieldB',
 									},
 								],
 							},
@@ -112,39 +210,6 @@
 		source: 'extension_framework_client'
 	}, window.parent.location.origin)
 
-	let count = 0
-
-	const listener = (event) => {
-		if (!event) {
-			return
-		}
-		const { data, origin } = event
-		if (origin !== window.parent.location.origin || !data) {
-			return
-		}
-		const { source, payload } = data
-		if (source !== 'extension_framework_client' || !payload) {
-			return
-		}
-		if (payload.event === 'increment_click') {
-			count += 1
-		} else if (payload.event === 'decrement_click') {
-			count -= 1
-		}
-		window.parent.postMessage({
-			payload: {
-				event: 'update_model',
-				modelName: 'counter',
-				path: 'count',
-				value: count
-			},
-			source: 'extension_framework_client'
-		})
-	}
-
-	window.addEventListener('message', listener)
-	window.addEventListener('unload', () => {
-		window.removeEventListener('message', listener)
-	})
-
+	counterApp()
+	propagateApp()
 })()
